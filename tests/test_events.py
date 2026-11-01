@@ -221,20 +221,20 @@ class BatteryWatcherTest(unittest.TestCase):
         return watcher.observe(reading(raw, ts))
 
     def test_first_observation_arms_only_levels_above_current_soc(self):
-        watcher = BatteryWatcher((50, 25))
+        watcher = BatteryWatcher((50, 25), settle_seconds=0)
         self.assertEqual(self.observe(watcher, 40, 1000.0), [])
         alerts = self.observe(watcher, 24, 1010.0)
         self.assertEqual([alert.level for alert in alerts], [25])
 
     def test_crossing_level_fires_once(self):
-        watcher = BatteryWatcher((50, 25))
+        watcher = BatteryWatcher((50, 25), settle_seconds=0)
         self.observe(watcher, 60, 1000.0)
         alerts = self.observe(watcher, 49, 1010.0)
         self.assertEqual([alert.level for alert in alerts], [50])
         self.assertEqual(self.observe(watcher, 48, 1020.0), [])
 
     def test_level_rearms_after_recovery(self):
-        watcher = BatteryWatcher((50, 25), recovery_margin=3)
+        watcher = BatteryWatcher((50, 25), recovery_margin=3, settle_seconds=0)
         self.observe(watcher, 60, 1000.0)
         self.observe(watcher, 49, 1010.0)
         self.observe(watcher, 54, 1020.0)
@@ -242,17 +242,50 @@ class BatteryWatcherTest(unittest.TestCase):
         self.assertEqual([alert.level for alert in alerts], [50])
 
     def test_level_does_not_rearm_inside_margin(self):
-        watcher = BatteryWatcher((50, 25), recovery_margin=3)
+        watcher = BatteryWatcher((50, 25), recovery_margin=3, settle_seconds=0)
         self.observe(watcher, 60, 1000.0)
         self.observe(watcher, 49, 1010.0)
         self.observe(watcher, 52, 1020.0)
         self.assertEqual(self.observe(watcher, 49, 1030.0), [])
 
     def test_both_levels_fire_on_a_steep_drop(self):
-        watcher = BatteryWatcher((50, 25))
+        watcher = BatteryWatcher((50, 25), settle_seconds=0)
         self.observe(watcher, 60, 1000.0)
         alerts = self.observe(watcher, 20, 1010.0)
         self.assertEqual([alert.level for alert in alerts], [50, 25])
+
+    def test_alert_waits_for_the_settle_window(self):
+        watcher = BatteryWatcher((50, 25), settle_seconds=600)
+        self.observe(watcher, 60, 1000.0)
+        self.assertEqual(self.observe(watcher, 49, 1010.0), [])
+        self.assertEqual(self.observe(watcher, 49, 1010.0 + 599), [])
+        alerts = self.observe(watcher, 49, 1010.0 + 600)
+        self.assertEqual([alert.level for alert in alerts], [50])
+
+    def test_transient_dip_does_not_post(self):
+        watcher = BatteryWatcher((50, 25), settle_seconds=600)
+        self.observe(watcher, 60, 1000.0)
+        self.assertEqual(self.observe(watcher, 49, 1010.0), [])
+        self.assertEqual(self.observe(watcher, 51, 1300.0), [])   # load dropped, SOC recovered
+        self.assertEqual(self.observe(watcher, 49, 1600.0), [])   # timer restarted
+        self.assertEqual(self.observe(watcher, 49, 1600.0 + 599), [])
+        alerts = self.observe(watcher, 49, 1600.0 + 600)
+        self.assertEqual([alert.level for alert in alerts], [50])
+
+    def test_settle_applies_again_after_recovery(self):
+        watcher = BatteryWatcher((50, 25), recovery_margin=3, settle_seconds=600)
+        self.observe(watcher, 60, 0.0)
+        self.observe(watcher, 49, 10.0)
+        self.assertEqual(len(self.observe(watcher, 49, 610.0)), 1)
+        self.observe(watcher, 54, 700.0)
+        self.assertEqual(self.observe(watcher, 49, 800.0), [], "settle restarts after re-arm")
+        self.assertEqual(len(self.observe(watcher, 49, 1400.0)), 1)
+
+    def test_both_levels_need_their_own_window(self):
+        watcher = BatteryWatcher((50, 25), settle_seconds=600)
+        self.observe(watcher, 60, 0.0)
+        self.observe(watcher, 20, 10.0)      # both start their timers here
+        self.assertEqual([a.level for a in self.observe(watcher, 20, 610.0)], [50, 25])
 
 
 class SignalEngineTest(unittest.TestCase):
@@ -261,7 +294,9 @@ class SignalEngineTest(unittest.TestCase):
         os.close(handle)
         self.store = Store(self.path)
         self.engine = SignalEngine(
-            self.store, GridWatcher(self.store, confirm_samples=1), BatteryWatcher((50, 25))
+            self.store,
+            GridWatcher(self.store, confirm_samples=1),
+            BatteryWatcher((50, 25), settle_seconds=0),
         )
 
     def tearDown(self):

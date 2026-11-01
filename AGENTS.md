@@ -87,6 +87,9 @@ Only stdlib plus `aiogram` — do not add dependencies without a stated reason.
   2 s deadline on the first request of a fresh session.
 - The inverter clock runs **1 h ahead** of local time — matters for imports.
 - Grid presence threshold: ≥ 40 Hz or ≥ 100 V.
+- Battery level alerts wait for `alerts.soc_settle` (10 min) of continuous SOC at
+  or below the level. The calibrated SOC sags under load, so removing this window
+  re-introduces duplicate "поріг 50%" posts.
 
 ## Workflow
 

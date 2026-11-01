@@ -56,6 +56,14 @@ Battery thresholds (`alerts.soc_levels`, default `[50, 25]`):
 🔴 світла немає · заряд 49% · інв. 72%
 ```
 
+A level is posted only after the SOC stayed **at or below it for
+`alerts.soc_settle`** seconds (default 600). The calibrated SOC follows pack
+voltage, so a load spike sags it for a few minutes and it pops back up — without
+the settle window that produced duplicate "поріг 50%" posts minutes apart. Any
+reading above the level cancels the pending post and restarts the timer; the
+level re-arms only after SOC climbs `+3` points above it, and the next crossing
+waits for its own window.
+
 Startup recovery cards are described in [troubleshooting.md](troubleshooting.md#startup-recovery)
 and [architecture.md](architecture.md); the classifier itself lives in `recovery.py`.
 

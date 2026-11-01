@@ -168,7 +168,9 @@ async def run(args: argparse.Namespace) -> None:
     last_powered, _ = store.grid_state()
     grid_watcher = GridWatcher(store, confirm_samples=config.events.confirm_samples)
     engine = SignalEngine(
-        store, grid_watcher, BatteryWatcher(config.alerts.soc_levels)
+        store,
+        grid_watcher,
+        BatteryWatcher(config.alerts.soc_levels, settle_seconds=config.alerts.soc_settle),
     )
     ctx = BotContext(
         config=config,

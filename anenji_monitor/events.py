@@ -108,12 +108,24 @@ class GridWatcher:
 
 
 class BatteryWatcher:
-    """Fires once when SOC crosses each configured level downwards, re-arming on recovery."""
+    """Fires once per level, and only after SOC stayed below it for the settle window.
 
-    def __init__(self, levels: tuple[int, ...], *, recovery_margin: float = 3.0) -> None:
+    A load spike sags the pack voltage and the calibrated SOC dips for a few minutes;
+    posting on that transient produced duplicate "поріг 50%" messages minutes apart.
+    """
+
+    def __init__(
+        self,
+        levels: tuple[int, ...],
+        *,
+        recovery_margin: float = 3.0,
+        settle_seconds: float = 600.0,
+    ) -> None:
         self._levels = tuple(sorted(levels, reverse=True))
         self._margin = recovery_margin
+        self._settle = settle_seconds
         self._armed: set[int] | None = None
+        self._pending: dict[int, float] = {}
 
     def observe(self, reading: Reading) -> list[BatteryAlert]:
         soc = reading.values.get("soc", reading.values.get("battery_soc"))
@@ -129,11 +141,19 @@ class BatteryWatcher:
         register_soc = reading.values.get("battery_soc")
         alerts = []
         for level in self._levels:
-            if soc <= level and level in self._armed:
-                self._armed.discard(level)
-                alerts.append(BatteryAlert(level, soc, powered, register_soc))
-            elif soc >= level + self._margin:
-                self._armed.add(level)
+            if soc > level:
+                self._pending.pop(level, None)
+                if soc >= level + self._margin:
+                    self._armed.add(level)
+                continue
+            if level not in self._armed:
+                continue
+            since = self._pending.setdefault(level, reading.timestamp)
+            if reading.timestamp - since < self._settle:
+                continue
+            self._pending.pop(level, None)
+            self._armed.discard(level)
+            alerts.append(BatteryAlert(level, soc, powered, register_soc))
         return alerts
 
 

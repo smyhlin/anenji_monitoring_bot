@@ -20,6 +20,7 @@ max_batch = 50                  # registers per request (hard Modbus limit is 12
 enabled = true
 offline_after = 180     # admin notice after this many seconds without data
 soc_levels = [50, 25]   # battery thresholds posted to the chats
+soc_settle = 600        # seconds SOC must stay below a level before it is posted
 
 [events]
 confirm_samples = 2     # consecutive polls that must agree before an event fires

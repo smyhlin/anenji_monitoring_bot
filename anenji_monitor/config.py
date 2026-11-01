@@ -63,6 +63,7 @@ class AlertsConfig:
     enabled: bool = True
     offline_after: float = 180.0
     soc_levels: tuple[int, ...] = (50, 25)
+    soc_settle: float = 600.0
 
 
 @dataclass(frozen=True)
@@ -146,5 +147,6 @@ def load(path: str | Path) -> Config:
             soc_levels=tuple(
                 sorted((int(level) for level in alerts.get("soc_levels", (50, 25))), reverse=True)
             ),
+            soc_settle=float(alerts.get("soc_settle", 600.0)),
         ),
     )
