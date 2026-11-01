@@ -1,0 +1,194 @@
+# Register profile for the inverter at 192.168.1.42 (Anenji, equipment type 0x7804 = 30724).
+#
+# Every address below was read live from the unit. Registers that carry live
+# telemetry drift between polls; settings and identity registers stay constant.
+# scale  = multiplier applied to the raw 16-bit value.
+# signed = false for bitfields/identity registers that must not go negative.
+# group = section used by /status (/battery, /pv, ... read the group by name),
+#         "diagnostics" is shown by /all only.
+
+[[register]]
+address = 202
+key = "grid_voltage"
+label = "Напруга мережі"
+unit = "В"
+scale = 0.1
+group = "grid"
+
+[[register]]
+address = 203
+key = "grid_frequency"
+label = "Частота мережі"
+unit = "Гц"
+scale = 0.01
+group = "grid"
+
+[[register]]
+address = 204
+key = "grid_power"
+label = "Потужність мережі"
+unit = "Вт"
+scale = 1
+group = "grid"
+
+[[register]]
+address = 205
+key = "ac_voltage"
+label = "Напруга AC (блок 1)"
+unit = "В"
+scale = 0.1
+group = "output"
+
+[[register]]
+address = 206
+key = "ac_current"
+label = "Струм AC (блок 1)"
+unit = "А"
+scale = 0.1
+group = "output"
+
+[[register]]
+address = 207
+key = "ac_frequency"
+label = "Частота AC (блок 1)"
+unit = "Гц"
+scale = 0.01
+group = "output"
+
+[[register]]
+address = 213
+key = "load_power"
+label = "Потужність навантаження"
+unit = "Вт"
+scale = 1
+group = "load"
+
+[[register]]
+address = 214
+key = "load_apparent_power"
+label = "Повна потужність навантаження"
+unit = "ВА"
+scale = 1
+group = "load"
+
+[[register]]
+address = 215
+key = "battery_voltage"
+label = "Напруга батареї"
+unit = "В"
+scale = 0.1
+group = "battery"
+
+[[register]]
+address = 216
+key = "battery_current"
+label = "Струм батареї"
+unit = "А"
+scale = 0.1
+group = "battery"
+
+[[register]]
+address = 217
+key = "battery_power"
+label = "Потужність батареї"
+unit = "Вт"
+scale = 1
+group = "battery"
+
+[[register]]
+address = 229
+key = "battery_soc"
+label = "Заряд батареї"
+unit = "%"
+scale = 1
+group = "battery"
+
+[[register]]
+address = 226
+key = "inverter_temp"
+label = "Температура інвертора"
+unit = "°C"
+scale = 1
+group = "temperature"
+
+[[register]]
+address = 227
+key = "dc_temp"
+label = "Температура DC-плати"
+unit = "°C"
+scale = 1
+group = "temperature"
+
+[[register]]
+address = 171
+key = "equipment_type"
+label = "Тип обладнання"
+unit = ""
+scale = 1
+group = "diagnostics"
+signed = false
+
+[[register]]
+address = 200
+key = "status_flags"
+label = "Прапорці стану"
+unit = ""
+scale = 1
+group = "diagnostics"
+signed = false
+
+[[register]]
+address = 201
+key = "status_code"
+label = "Код стану"
+unit = ""
+scale = 1
+group = "diagnostics"
+
+[[register]]
+address = 208
+key = "unknown_208"
+label = "Регістр 208 (невідомо)"
+unit = ""
+scale = 0.1
+group = "diagnostics"
+
+[[register]]
+address = 210
+key = "ac_voltage_2"
+label = "Напруга AC (блок 2)"
+unit = "В"
+scale = 0.1
+group = "diagnostics"
+
+[[register]]
+address = 211
+key = "ac_current_2"
+label = "Струм AC (блок 2)"
+unit = "А"
+scale = 0.1
+group = "diagnostics"
+
+[[register]]
+address = 212
+key = "ac_frequency_2"
+label = "Частота AC (блок 2)"
+unit = "Гц"
+scale = 0.01
+group = "diagnostics"
+
+[[register]]
+address = 218
+key = "dc_voltage"
+label = "Напруга DC-шини (невідомо)"
+unit = "В"
+scale = 0.1
+group = "diagnostics"
+
+[[register]]
+address = 219
+key = "dc_current"
+label = "Струм DC-шини (невідомо)"
+unit = "А"
+scale = 0.1
+group = "diagnostics"

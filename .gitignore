@@ -1,0 +1,9 @@
+config.toml
+*.egg-info/
+.venv/
+__pycache__/
+*.pyc
+state.db*
+.ruff_cache/
+.DS_Store
+*.log

@@ -1,0 +1,17 @@
+[Unit]
+Description=Anenji inverter monitoring Telegram bot
+Documentation=file:/opt/anenji-monitor/README.md
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/anenji-monitor
+ExecStart=/opt/anenji-monitor/.venv/bin/python main.py --config config.toml
+Restart=always
+RestartSec=10
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

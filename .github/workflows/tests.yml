@@ -1,0 +1,51 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.[dev]'
+
+      - name: Lint
+        run: ruff check anenji_monitor main.py tests tools
+
+      - name: Tests
+        run: python -m unittest discover -s tests -t . -v
+
+  config-example:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Example config and register profile must stay loadable
+        run: |
+          python -c "
+          from anenji_monitor.config import ConfigError, load
+          from anenji_monitor.registers import RegisterMap
+          try:
+              load('config.example.toml')
+          except ConfigError as exc:
+              raise SystemExit(f'config.example.toml is broken: {exc}')
+          registers = RegisterMap.load('registers.toml')
+          print(f'{len(registers.registers)} registers in the profile')
+          "

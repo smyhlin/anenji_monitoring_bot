@@ -1,0 +1,27 @@
+[project]
+name = "anenji-monitor"
+version = "0.1.0"
+description = "Telegram bot that reads an Anenji/DessMonitor inverter over Modbus RTU and posts grid on/off signals"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "smyhlin" }]
+keywords = ["anenji", "dessmonitor", "modbus", "inverter", "telegram", "solax"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Home Automation",
+    "License :: OSI Approved :: MIT License",
+]
+dependencies = ["aiogram>=3.13"]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.6"]
+
+[tool.setuptools]
+packages = ["anenji_monitor"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

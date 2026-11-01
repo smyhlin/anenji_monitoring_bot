@@ -1,0 +1,41 @@
+# Copy to config.toml and fill in. config.toml is gitignored.
+
+[telegram]
+token = "123456:AA..."          # @BotFather token
+admin_ids = [123456789]         # full control
+moderator_ids = [111111111, 222222222]   # info commands only
+default_chats = [-1001234567890]         # auto-subscribed at start
+
+[inverter]
+host = "192.168.1.42"           # dongle IP on your LAN
+register_map = "registers.toml"  # which registers to read/label
+listen_port = 8899              # port the dongle dials back on
+poll_interval = 10              # seconds between poll cycles
+connect_timeout = 30            # seconds to wait for the dongle to dial in
+request_timeout = 5             # seconds to wait for a Modbus reply
+max_gap = 20                    # merge registers up to this distance into one request
+max_batch = 50                  # registers per request (hard Modbus limit is 125)
+
+[alerts]
+enabled = true
+offline_after = 180     # admin notice after this many seconds without data
+soc_levels = [50, 25]   # battery thresholds posted to the chats
+
+[events]
+confirm_samples = 2     # consecutive polls that must agree before an event fires
+
+[battery]
+soc_source = "voltage"   # "voltage" = calibrated curve, "register" = raw inverter value
+# Pack voltage -> percent, anchored on the BMS reading (25.9 V ≈ 55 %).
+curve = [
+    [22.40, 0], [24.00, 8], [24.40, 15], [24.80, 25], [25.20, 38],
+    [25.50, 47], [25.70, 51], [25.90, 55], [26.10, 68], [26.30, 82],
+    [26.50, 93], [26.70, 100],
+]
+
+[recovery]
+reboot_after = 300      # downtime above this is reported as a restart
+drained_after = 1800    # downtime above this with grid returning = drained battery
+
+[storage]
+path = "state.db"       # chat subscriptions + last grid transition (durations depend on it)
