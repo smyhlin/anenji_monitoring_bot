@@ -39,10 +39,6 @@ def moment(timestamp: float) -> str:
     return time.strftime("%d.%m %H:%M", time.localtime(timestamp))
 
 
-def short_day(timestamp: float) -> str:
-    return time.strftime("%d.%m", time.localtime(timestamp))
-
-
 def battery_bar(soc: float, cells: int = 10) -> str:
     filled = max(0, min(cells, round(soc / 100 * cells)))
     return "█" * filled + "░" * (cells - filled)
@@ -99,7 +95,3 @@ def recovery_message(
     if soc is not None:
         lines.append(f"🔋 Батарея {soc:.0f}%")
     return "\n".join(lines)
-
-
-def footer(timestamp: float) -> str:
-    return f"<i>{clock(timestamp)} · {day_label(timestamp)}</i>"

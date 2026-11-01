@@ -2,6 +2,7 @@
 
 __all__ = [
     "alerts",
+    "battery",
     "bot",
     "config",
     "events",
@@ -10,6 +11,7 @@ __all__ = [
     "recovery",
     "registers",
     "render",
+    "simulator",
     "stats",
     "store",
     "text",

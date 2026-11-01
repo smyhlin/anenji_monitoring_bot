@@ -57,7 +57,7 @@ Moderators are read-only: asking for an admin command returns an explicit refusa
 ## Tests
 
 ```bash
-.venv/bin/python -m unittest discover -s tests -t .   # 163 tests
+.venv/bin/python -m unittest discover -s tests -t .
 uvx ruff check anenji_monitor main.py tests tools
 ```
 

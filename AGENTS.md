@@ -21,7 +21,7 @@ reality, not guesswork.
 
 ```bash
 uv venv .venv && uv pip install -e .
-.venv/bin/python -m unittest discover -s tests -t .     # 163 tests, must stay green
+.venv/bin/python -m unittest discover -s tests -t .     # full suite, must stay green
 uvx ruff check anenji_monitor main.py tests tools       # must stay clean
 .venv/bin/python main.py --config config.toml           # local run (needs the dongle)
 .venv/bin/python -m anenji_monitor.simulator            # fake dongle for offline work

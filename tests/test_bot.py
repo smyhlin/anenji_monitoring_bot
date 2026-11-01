@@ -375,7 +375,7 @@ class UnauthorizedRouterTest(unittest.TestCase):
         self.assertEqual(self.session.sent, [])
 
     def test_ignores_service_messages_from_bots(self):
-        bot_user = User(id=9219247678, is_bot=True, first_name="Є світло?")
+        bot_user = User(id=777000111, is_bot=True, first_name="Є світло?")
         self.feed(make_update(None, 999, from_user=bot_user))
         self.assertEqual(self.session.sent, [])
 
