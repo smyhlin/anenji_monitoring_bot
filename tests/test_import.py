@@ -147,6 +147,29 @@ class ImportFileTest(unittest.TestCase):
         stats = self.run_import(dry_run=False)
         self.assertEqual(stats["imported_hours"], 0)
 
+    def test_gap_hours_are_filled_but_live_hours_are_kept(self):
+        write_xlsx(
+            self.xlsx,
+            [
+                ["2026-11-01 10:00:00", "230.0", "26.4"],
+                ["2026-11-01 11:00:00", "0.0", "25.9"],
+            ],
+        )
+        store = Store(self.db)
+        live_hour = int(datetime.datetime(2026, 11, 1, 9, 0).timestamp()) // 3600 * 3600
+        store.record_soc(live_hour + 60, 77.0)
+        store.close()
+
+        stats = self.run_import(dry_run=False)
+        self.assertEqual(stats["imported_hours"], 1, "only the gap hour is written")
+        store = Store(self.db)
+        try:
+            summary = store.soc_summary(0, 9e9)
+            # live hour 09 keeps its single sample, gap hour 10 contributes one
+            self.assertEqual(summary.samples, 2, "live hour kept, gap hour added")
+        finally:
+            store.close()
+
     def test_same_state_rows_are_compacted(self):
         store = Store(self.db)
         base = int(datetime.datetime(2026, 11, 1, 9, 0).timestamp())

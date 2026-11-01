@@ -167,16 +167,10 @@ def import_file(
 
     store = Store(db_path)
     try:
-        event_floor, hour_floor = store.earliest_history()
         imported_events = 0 if dry_run else store.add_grid_events(transitions)
-        # An hour that already holds live samples keeps them: merging partial
-        # buckets from two sources would double-count the same readings.
-        fresh_hours = {
-            hour: values
-            for hour, values in hours.items()
-            if hour_floor is None or hour < hour_floor
-        }
-        imported_hours = 0 if dry_run else store.add_soc_hours(fresh_hours)
+        # INSERT OR IGNORE keeps live buckets: an hour that already holds samples is
+        # left alone, while gap hours the bot never saw are filled in.
+        imported_hours = 0 if dry_run else store.add_soc_hours(hours)
 
         compacted = 0 if dry_run else store.compact_grid_events()
         state, since = store.grid_state()
@@ -202,9 +196,7 @@ def import_file(
         "transitions": len(transitions),
         "imported_events": imported_events,
         "hours": len(hours),
-        "fresh_hours": len(fresh_hours),
         "imported_hours": imported_hours,
-        "existing_event_floor": event_floor,
         "compacted": compacted,
         "reconciled_since": reconciled,
         "dry_run": dry_run,
@@ -241,7 +233,7 @@ def main() -> None:
     print(f"rows:        {stats['rows']} (usable samples: {stats['samples']})")
     print(f"range:       {stamp(stats['first'])} -> {stamp(stats['last'])}")
     print(f"transitions: {stats['transitions']} (inserted {stats['imported_events']})")
-    print(f"soc hours:   {stats['hours']} (fresh {stats['fresh_hours']}, inserted {stats['imported_hours']})")
+    print(f"soc hours:   {stats['hours']} (inserted {stats['imported_hours']})")
     if stats["compacted"]:
         print(f"compacted:   {stats['compacted']} repeated same-state event row(s) removed")
     if stats["reconciled_since"]:

@@ -70,8 +70,9 @@ it is still an estimate between anchors.
   sampling they are accurate to ±5 minutes;
 - hourly SOC buckets are rebuilt from **Battery Voltage** through the same `[battery]`
   curve, so history and live samples stay one series;
-- hours that already hold live samples are skipped, and same-state event rows are
-  compacted, so a second run inserts nothing (`compacted: 0`, `inserted 0`);
+- hours that already hold live samples are kept as they are (`INSERT OR IGNORE`),
+  while gap hours the bot never saw are filled in; same-state event rows are
+  compacted, so a second run inserts nothing (`inserted 0`);
 - after the import, `grid_since` is moved back to the last imported transition, so
   `/status` shows the real outage length instead of the boot time.
 

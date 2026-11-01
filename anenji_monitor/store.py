@@ -238,11 +238,6 @@ class Store:
         self._conn.commit()
         return len(rows) - len(keep)
 
-    def earliest_history(self) -> tuple[float | None, float | None]:
-        event = self._conn.execute("SELECT MIN(ts) AS ts FROM grid_events").fetchone()
-        hour = self._conn.execute("SELECT MIN(hour) AS hour FROM soc_hourly").fetchone()
-        return event["ts"], hour["hour"]
-
     def record_soc(self, timestamp: float, soc: float) -> None:
         hour = int(timestamp) // 3600 * 3600
         self._conn.execute(
