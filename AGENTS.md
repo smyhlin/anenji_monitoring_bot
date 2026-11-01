@@ -5,10 +5,14 @@ this file only adds what an agent cannot infer from the code.
 
 ## What this is
 
-A Python/aiogram Telegram bot that polls an Anenji/DessMonitor inverter over the LAN
-(Modbus RTU over the WiFi dongle) and posts grid on/off signals plus uptime statistics.
-It runs as a systemd service on the CloudKey Gen2+ (`192.168.1.249`), **not** on a
-workstation, because the dongle dials back on the LAN.
+A Python/aiogram Telegram bot that polls an **Anenji inverter** over the LAN (Modbus RTU
+over its Wi-Fi dongle) and posts grid on/off signals plus uptime statistics. It runs as
+a systemd service on the CloudKey Gen2+ (`192.168.1.249`), **not** on a workstation,
+because the dongle dials back on the LAN.
+
+DessMonitor is the vendor's cloud portal that normally parses the dongle's telemetry
+over the internet — a service, not the inverter. Do not describe the device as
+"DessMonitor"; the export tool is named after the portal it reads exports from.
 
 Deep dives: [docs/architecture.md](docs/architecture.md),
 [docs/modbus.md](docs/modbus.md), [docs/registers.md](docs/registers.md),

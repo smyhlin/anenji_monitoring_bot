@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Import a DessMonitor XLSX export into the bot's state.db.
+"""Import a DessMonitor portal export (XLSX) into the bot's state.db.
+
+DessMonitor is the vendor's cloud service that parses the dongle's telemetry over the
+internet; its portal can export the same readings as a spreadsheet, which is what this
+tool backfills from.
 
 The export samples the inverter every ~5 minutes. Grid transitions are derived
 from the grid-voltage column, and the hourly SOC rollup is rebuilt from the

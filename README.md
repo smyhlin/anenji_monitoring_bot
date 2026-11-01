@@ -1,8 +1,12 @@
 # Anenji inverter monitoring bot
 
-Telegram bot that reads an Anenji / DessMonitor inverter over the LAN (Modbus RTU over
-the WiFi dongle, no cloud), posts grid on/off signals into a group, and keeps uptime
+Telegram bot that reads an **Anenji inverter** directly over the LAN (Modbus RTU over
+its Wi-Fi dongle, no cloud), posts grid on/off signals into a group, and keeps uptime
 statistics.
+
+The dongle's normal uplink is **DessMonitor** — the vendor's cloud portal that parses
+the dongle's telemetry over the internet. It is a service, not the device; this bot
+takes that session over locally instead of going through it.
 
 ```text
 🔴 Світла немає · 4год 36хв

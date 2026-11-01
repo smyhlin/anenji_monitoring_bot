@@ -1,6 +1,7 @@
-"""Modbus RTU client for Anenji / DessMonitor Wi-Fi dongles.
+"""Modbus RTU client for the Anenji inverter's Wi-Fi dongle.
 
-The dongle is normally a cloud client: it dials out to DessMonitor. To talk to
+The dongle is normally a cloud client: it dials out to the DessMonitor portal,
+which parses its telemetry over the internet. To talk to
 it locally we send a UDP datagram ``set>server=<ip>:<port>;`` to port 58899,
 which makes it open a TCP connection back to us. Bare Modbus RTU frames then
 travel over that socket (unit id 1, function 3, no MBAP header).

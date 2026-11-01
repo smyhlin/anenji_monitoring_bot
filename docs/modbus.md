@@ -1,7 +1,8 @@
 # Local Modbus link
 
-The inverter's WiFi dongle normally dials out to DessMonitor's cloud. To read the
-device locally we take over that connection:
+The inverter's Wi-Fi dongle normally dials out to the **DessMonitor** portal — the
+vendor's cloud service that parses its telemetry over the internet. To read the device
+locally we take over that connection:
 
 1. a UDP datagram `set>server=<our-ip>:8899;` is sent to the dongle on port **58899**;
 2. the dongle opens a TCP session to us on port **8899**;

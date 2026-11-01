@@ -58,7 +58,8 @@ it is still an estimate between anchors.
 
 ## Importing a DessMonitor export
 
-`tools/import_dessmonitor.py` backfills history from the cloud portal `.xlsx`
+`tools/import_dessmonitor.py` backfills history from the `.xlsx` that the DessMonitor
+portal exports
 (no extra dependency: `zipfile` + regex).
 
 ```bash
