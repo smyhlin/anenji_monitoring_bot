@@ -47,15 +47,16 @@ Grid transitions, posted to subscribed chats:
 ```
 🔴 11:16 Світло зникло            🟢 11:42 Світло з'явилося
 🕐 Воно було 19год 14хв           🕐 Його не було 25хв
-⚡ Реле вимкнулось о 11:18
 ```
 
-The third line appears when `[events] grid_off_settle` (default 120 s) is set. The
-inverter's relay needs that long before it opens, so a shorter dip never takes the load
-down and is **not** published as an outage: the event only fires once the grid has been
-gone for the full delay, keeps the first absent sample as its timestamp, and states when
-the relay actually opened. During that window `/status` shows the new state without a
-duration instead of pretending the old uptime is the outage length.
+The input relay opens **immediately** on a spike, so an outage is published as soon as
+it is seen (after `[events] confirm_samples`). Its reconnect is a verification: it
+re-enables the light and drops it again if the grid is still bad. Therefore
+`[events] grid_settle` (default 120 s) gates only the **restore** — a "light on" that
+lasts less than the window is a failed retry, not a restore, and produces no post.
+Timestamps are the first sample of each state, because the relay acted then and the
+inverter reported later. While a restore is unverified, `/status` shows the new state
+without a duration instead of presenting the old uptime as the outage length.
 
 Battery thresholds (`alerts.soc_levels`, default `[50, 25]`):
 

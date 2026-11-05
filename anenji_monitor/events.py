@@ -20,12 +20,9 @@ class GridTransition:
     powered: bool
     at: float
     previous_duration: float
-    relay_at: float | None = None
 
     def render(self) -> str:
-        return text.transition_message(
-            self.powered, self.at, self.previous_duration, self.relay_at
-        )
+        return text.transition_message(self.powered, self.at, self.previous_duration)
 
 
 @dataclass(frozen=True)
@@ -45,9 +42,10 @@ Event = GridTransition | BatteryAlert
 class GridWatcher:
     """Turns polled readings into confirmed transitions, persisting the state.
 
-    `off_settle` models the inverter's relay delay: a short grid dip never switches
-    the load off, so it must not be published as an outage either. The event keeps
-    the first sample as its timestamp and reports when the relay actually opened.
+    The input relay opens immediately on a spike, so an outage is published as soon
+    as it is seen. Its reconnect is a *verification*: it re-enables the light, and
+    drops it again if the grid is still bad. `settle` therefore gates only the
+    restore — a "light on" shorter than the window is a failed retry, not a restore.
     """
 
     def __init__(
@@ -55,11 +53,11 @@ class GridWatcher:
         store: Store,
         *,
         confirm_samples: int = 2,
-        off_settle: float = 0.0,
+        settle: float = 0.0,
     ) -> None:
         self._store = store
         self._confirm = max(1, confirm_samples)
-        self._off_settle = max(0.0, off_settle)
+        self._settle = max(0.0, settle)
         self._pending: bool | None = None
         self._pending_since = 0.0
         self._pending_count = 0
@@ -110,7 +108,8 @@ class GridWatcher:
             self._pending_count += 1
         if self._pending_count < self._confirm:
             return None
-        if not powered and reading.timestamp - self._pending_since < self._off_settle:
+        # Only a restore has to prove itself: short "on" windows are relay retries.
+        if powered and reading.timestamp - self._pending_since < self._settle:
             return None
 
         changed_at = self._pending_since
@@ -123,8 +122,7 @@ class GridWatcher:
             text.clock(changed_at),
             text.format_duration(previous_duration),
         )
-        relay_at = changed_at + self._off_settle if not powered and self._off_settle else None
-        return GridTransition(powered, changed_at, previous_duration, relay_at)
+        return GridTransition(powered, changed_at, previous_duration)
 
     def _forget_pending(self) -> None:
         self._pending = None

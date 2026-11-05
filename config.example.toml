@@ -24,7 +24,7 @@ soc_settle = 600        # seconds SOC must stay below a level before it is poste
 
 [events]
 confirm_samples = 2     # consecutive polls that must agree before an event fires
-grid_off_settle = 120   # relay delay: an outage shorter than this is never posted
+grid_settle = 120       # restore must hold this long (relay verification) before posting
 
 [battery]
 soc_source = "voltage"   # "voltage" = calibrated curve, "register" = raw inverter value

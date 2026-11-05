@@ -30,7 +30,7 @@ Thresholds: `[recovery] reboot_after` (300 s) and `drained_after` (1800 s).
 | `409 Conflict` on Telegram | two pollers running with the same token |
 | all readings plausible but grid is always 0 | the grid really is down, or `grid_voltage` points at an unused register — check with `/raw` against the inverter display |
 | SOC disagrees with the BMS | expected for register 229; the bot shows the calibrated value plus `інв. N%`. Re-anchor the `[battery] curve` |
-| a short dip produced no outage post | expected: outages shorter than `grid_off_settle` (120 s) never trigger the relay, so they are not published |
+| no «світло з'явилося» post while the grid is flapping | expected: a restore must hold `grid_settle` (120 s); shorter "on" windows are the relay's failed retries |
 | battery alerts never fire | they use the **calibrated** SOC with a 3-point re-arm margin, and levels already crossed at startup stay silent (the startup card covers it) |
 | group posts missing | chat not subscribed (`/subscribe`), event toggled off (`/chats`), or the bot was removed |
 | chat photo never changes | bot lacks **Change chat info**, `🖼 фото` is off, or the photo already shows the current state (by design) |

@@ -169,7 +169,7 @@ async def run(args: argparse.Namespace) -> None:
     grid_watcher = GridWatcher(
         store,
         confirm_samples=config.events.confirm_samples,
-        off_settle=config.events.grid_off_settle,
+        settle=config.events.grid_settle,
     )
     engine = SignalEngine(
         store,

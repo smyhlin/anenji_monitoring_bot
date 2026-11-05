@@ -44,7 +44,7 @@ class StorageConfig:
 @dataclass(frozen=True)
 class EventsConfig:
     confirm_samples: int = 2
-    grid_off_settle: float = 120.0
+    grid_settle: float = 120.0
 
 
 @dataclass(frozen=True)
@@ -137,7 +137,7 @@ def load(path: str | Path) -> Config:
         storage=StorageConfig(path=str(raw.get("storage", {}).get("path", "state.db"))),
         events=EventsConfig(
             confirm_samples=int(raw.get("events", {}).get("confirm_samples", 2)),
-            grid_off_settle=float(raw.get("events", {}).get("grid_off_settle", 120.0)),
+            grid_settle=float(raw.get("events", {}).get("grid_settle", 120.0)),
         ),
         recovery=RecoveryConfig(
             reboot_after=float(recovery.get("reboot_after", 300.0)),
