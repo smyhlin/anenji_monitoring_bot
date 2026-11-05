@@ -166,7 +166,11 @@ async def run(args: argparse.Namespace) -> None:
     store = Store(config.storage.path)
     last_seen = store.last_seen()
     last_powered, _ = store.grid_state()
-    grid_watcher = GridWatcher(store, confirm_samples=config.events.confirm_samples)
+    grid_watcher = GridWatcher(
+        store,
+        confirm_samples=config.events.confirm_samples,
+        off_settle=config.events.grid_off_settle,
+    )
     engine = SignalEngine(
         store,
         grid_watcher,

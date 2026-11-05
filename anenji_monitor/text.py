@@ -52,16 +52,24 @@ def percent(part: float, whole: float) -> str:
     return f"{0 if whole <= 0 else part / whole * 100:.0f}%"
 
 
-def transition_message(powered: bool, at: float, previous_duration: float) -> str:
+def transition_message(
+    powered: bool,
+    at: float,
+    previous_duration: float,
+    relay_at: float | None = None,
+) -> str:
     if powered:
         return (
             f"🟢 <b>{clock(at)} Світло з'явилося</b>\n"
             f"🕐 Його не було {format_duration(previous_duration)}"
         )
-    return (
-        f"🔴 <b>{clock(at)} Світло зникло</b>\n"
-        f"🕐 Воно було {format_duration(previous_duration)}"
-    )
+    lines = [
+        f"🔴 <b>{clock(at)} Світло зникло</b>",
+        f"🕐 Воно було {format_duration(previous_duration)}",
+    ]
+    if relay_at is not None:
+        lines.append(f"⚡ Реле вимкнулось о {clock(relay_at)}")
+    return "\n".join(lines)
 
 
 def battery_message(

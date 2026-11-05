@@ -214,6 +214,61 @@ class GridWatcherTest(unittest.TestCase):
         self.assertEqual(self.store.grid_events(0, 5000), [(1000.0, True), (2000.0, False)])
 
 
+class GridRelaySettleTest(unittest.TestCase):
+    """A dip shorter than the inverter's relay delay must not be published."""
+
+    def setUp(self):
+        handle, self.path = tempfile.mkstemp(suffix=".db")
+        os.close(handle)
+        self.store = Store(self.path)
+        self.watcher = GridWatcher(self.store, confirm_samples=1, off_settle=120)
+        self.watcher.observe(reading(GRID_UP, 1000.0))
+
+    def tearDown(self):
+        self.store.close()
+        os.unlink(self.path)
+
+    def test_short_outage_is_not_published(self):
+        self.assertIsNone(self.watcher.observe(reading(GRID_DOWN, 1010.0)))
+        self.assertIsNone(self.watcher.observe(reading(GRID_DOWN, 1060.0)))
+        self.assertIsNone(self.watcher.observe(reading(GRID_UP, 1070.0)))
+        self.assertEqual(self.store.grid_state(), (True, 1000.0))
+
+    def test_outage_published_once_the_relay_delay_elapses(self):
+        self.assertIsNone(self.watcher.observe(reading(GRID_DOWN, 1010.0)))
+        self.assertIsNone(self.watcher.observe(reading(GRID_DOWN, 1120.0)))
+        transition = self.watcher.observe(reading(GRID_DOWN, 1130.0))
+        self.assertIsNotNone(transition)
+        self.assertFalse(transition.powered)
+        self.assertEqual(transition.at, 1010.0, "timestamp stays the first off sample")
+        self.assertEqual(transition.relay_at, 1130.0)
+        self.assertIn("Реле вимкнулось о", transition.render())
+
+    def test_restore_is_published_without_the_delay(self):
+        self.watcher.observe(reading(GRID_DOWN, 1010.0))
+        outage = self.watcher.observe(reading(GRID_DOWN, 1130.0))
+        self.assertIsNotNone(outage)
+        restore = self.watcher.observe(reading(GRID_UP, 1140.0))
+        self.assertIsNotNone(restore)
+        self.assertTrue(restore.powered)
+        self.assertIsNone(restore.relay_at)
+        self.assertAlmostEqual(restore.previous_duration, 130.0)
+
+    def test_display_state_hides_duration_while_unconfirmed(self):
+        self.assertEqual(self.watcher.display_state(), (True, 1000.0))
+        self.watcher.observe(reading(GRID_DOWN, 1010.0))
+        self.assertEqual(self.watcher.display_state(), (False, None))
+        self.watcher.observe(reading(GRID_DOWN, 1130.0))
+        self.assertEqual(self.watcher.display_state(), (False, 1010.0))
+
+    def test_no_relay_line_without_a_settle_window(self):
+        watcher = GridWatcher(self.store, confirm_samples=1)
+        watcher.observe(reading(GRID_UP, 2000.0))
+        transition = watcher.observe(reading(GRID_DOWN, 2010.0))
+        self.assertIsNone(transition.relay_at)
+        self.assertNotIn("Реле", transition.render())
+
+
 class BatteryWatcherTest(unittest.TestCase):
     def observe(self, watcher: BatteryWatcher, soc: float, ts: float, powered: bool = False):
         raw = dict(GRID_UP if powered else GRID_DOWN)

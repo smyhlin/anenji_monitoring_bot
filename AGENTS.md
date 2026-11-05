@@ -91,6 +91,10 @@ Only stdlib plus `aiogram` — do not add dependencies without a stated reason.
   2 s deadline on the first request of a fresh session.
 - The inverter clock runs **1 h ahead** of local time — matters for imports.
 - Grid presence threshold: ≥ 40 Hz or ≥ 100 V.
+- Outages shorter than `[events] grid_off_settle` (120 s, the relay delay) are never
+  published and never repaint the chat photo — the relay did not open, so nothing
+  went down. The event keeps the first absent sample as `at` and reports the relay
+  time separately.
 - Battery level alerts wait for `alerts.soc_settle` (10 min) of continuous SOC at
   or below the level. The calibrated SOC sags under load, so removing this window
   re-introduces duplicate "поріг 50%" posts.

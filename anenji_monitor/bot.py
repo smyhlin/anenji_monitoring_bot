@@ -319,7 +319,7 @@ def build_router(ctx: BotContext) -> Router:
 
     @router.message(Command("status"), member)
     async def status_handler(message: Message) -> None:
-        _, since = ctx.engine.grid.current()
+        _, since = ctx.engine.grid.display_state()
         body = render.status(
             ctx.poller.state, ctx.registers, stale_after=ctx.stale_after, grid_since=since
         )
